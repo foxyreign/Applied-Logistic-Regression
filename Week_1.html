@@ -73,7 +73,9 @@ img {
 ## Loading required package: bitops</code></pre>
 <pre class="r"><code>require(ggplot2)</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
-<pre class="r"><code># Load the dataset
+<pre class="r"><code>options(rpubs.upload.method = &quot;internal&quot;)
+
+# Load the dataset
 myopia &lt;- getURL(&quot;https://d396qusza40orc.cloudfront.net/logisticregression/data/MYOPIA-fixed.csv&quot;, ssl.verifypeer=0L, followlocation=1L)
 writeLines(myopia, &quot;myopia.csv&quot;)
 myopia &lt;- read.csv(&quot;myopia.csv&quot;, head=T, sep=&quot;,&quot;)</code></pre>
