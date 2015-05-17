@@ -1,0 +1,115 @@
+---
+title: "Week One Homework"
+subtitle: "Applied Logistic Regression"
+output: html_document
+---
+
+## Exercise One ##
+
+For this exercise, you will need the Myopia Study dataset. Download the [MYOPIA.dta](https://d396qusza40orc.cloudfront.net/logisticregression/MYOPIA.dta) Stata file, or you can also access the data through this [CSV file](https://d396qusza40orc.cloudfront.net/logisticregression/data/MYOPIA-fixed.csv).
+
+```{r}
+require(RCurl)
+require(ggplot2)
+
+# Load the dataset
+myopia <- getURL("https://d396qusza40orc.cloudfront.net/logisticregression/data/MYOPIA-fixed.csv", ssl.verifypeer=0L, followlocation=1L)
+writeLines(myopia, "myopia.csv")
+myopia <- read.csv("myopia.csv", head=T, sep=",")
+```
+
+One variable that is clearly important is the initial value of spherical equivalent refraction (SPHEQ).
+
+Complete the following:
+
+1. Write down the equation for the logistic regression model of SPHEQ on MYOPIA. Write down the equation for the logit transformation of this logistic regression model. What characteristic of the outcome variable, MYOPIA, leads us to consider the logistic regression model as opposed to the usual linear regression model to describe the relationship between MYOPIA and SPHEQ? Discuss your response in the [homework forum](https://class.coursera.org/logisticregression-001/forum/list?forum_id=10012).
+
+    The probability of each record having a value of MYOPIC = 1,
+    
+    $\pi(x)=E(y|x)=\frac{e^{(\beta_0+\beta_1x)}}{1+e^{(\beta_0+\beta_1x)}}$  
+    
+    The odds ratio of the equation is:
+    
+    $Odd\,Ratio=\frac{\pi(x)}{(1-\pi(x))}$  
+      
+    Converting the odds ratio in its natural logarithm function:
+    
+    $ln\bigg(\frac{\pi(x)}{(1-\pi(x))}\bigg)=\beta_0+\beta_1x$
+       
+    In linear regression, it assumes that the distribution is normally distributed:
+    
+    $y=E(y|x)+\varepsilon$ where $\varepsilon \rightarrow N(0,\sigma^2)$ and therefore $y|x~N(E(y|x),\sigma^2)$ 
+    
+    This is not applicable in a logistic regression model because it follows a binomial distribution as previously formulated above.
+  
+2. Form a scatterplot of MYOPIA vs. SPHEQ.
+
+    ```{r}
+    ggplot(myopia, aes(x=SPHEQ, y=factor(MYOPIC))) + geom_point() + 
+        ylab("MYOPIC")
+    ```
+
+3. Write down an expression for the likelihood and log likelihood for the logistic regression model in part (A) using the ungrouped, n=618, data. Obtain expressions for the two likelihood equations.
+
+    $\ell(\beta)=\prod_{i=1}^{n}[\pi(x_i)]^{y_i}[1-\pi(x_i)]^{1-y_i}$  
+    
+    Converted into natural logarithm function:
+    
+    $L(\beta)=ln(\ell(\beta))=\sum_{i=1}^{n}y_iln[\pi(x_i)]+(1-y_i)ln[1-\pi(x_i)]$ 
+      
+    Maximum likelihood equations:
+    
+    $\sum_{i=1}^{n}(y_i-\pi(x_i))=0$
+    $\sum_{i=1}^{n}x_i(y_i-\pi(x_i))=0$
+
+4. Using Stata, obtain the maximum likelihood estimates of the parameters of the logistic regression model in part (A). These estimates should be based on the ungrouped, n=618, data. Using these estimates, write down the equation for the fitted values, that is, the estimated logistic probabilities. Plot the equation for the fitted values on the axes used in the scatterplots in parts (B) and (C).
+
+    ```{r}
+    summary(glm(as.factor(MYOPIC) ~ SPHEQ, data=myopia, family="binomial")) 
+    ```
+
+    Based on the coefficients provided by the logistic regression model, here are the estimates:
+    
+    $\pi_{e}(x)=\frac{e^{(0.05397-3.8331x)}}{(1+e^{(0.05397-3.8331x)})}$
+  
+    ```{r, fig.align='center'}
+    ggplot(myopia, aes(x=SPHEQ, y=MYOPIC)) + geom_point() + 
+        stat_smooth(method="glm", family="binomial", se=F) 
+    ```
+
+----------
+
+## Exercise Two ##
+
+For this exercise, you will need the ICU dataset. Download the [icu.dta](https://d396qusza40orc.cloudfront.net/logisticregression/data/icu.dta) Stata file, or you can also access the data through this [CSV file](https://d396qusza40orc.cloudfront.net/logisticregression/data/icu.csv).
+
+The ICU dataset consists of a sample of 200 subjects who were part of a much larger study on survival of patients following admission to an adult intensive care unit (ICU). The major goal of this study was to develop a logistic regression model to predict the probability of survival to hospital discharge of these patients. A number of publications have appeared which have focused on various facets of this problem.
+
+```{r echo=FALSE}
+icu <- getURL("https://d396qusza40orc.cloudfront.net/logisticregression/data/icu.csv", ssl.verifypeer=0L, followlocation=1L)
+writeLines(icu, "icu.csv")
+icu <- read.csv("icu.csv", head=T, sep=",")
+```
+
+Complete the following:
+
+1. Write down the equation for the logistic regression model of STA on AGE. Write down the equation for the logit transformation of this logistic regression model. What characteristic of the outcome variable, STA, leads us to consider the logistic regression model as opposed to the usual linear regression model to describe the relationship between STA and AGE?
+
+```{r}
+summary(glm(as.factor(STA) ~ AGE, data=icu, family="binomial"))
+```
+
+
+2. Form a scatterplot of STA versus AGE.
+
+
+3. Write down an expression for the likelihood and log likelihood for the logistic regression model in part (A) using the ungrouped, n=200, data. Obtain expressions for the two likelihood equations.
+4. Using Stata, obtain the maximum likelihood estimates of the parameters of the logistic regression model in part (A). These estimates should be based on the ungrouped, n=200, data. Using these estimates, write down the equation for the fitted values, that is, the estimated logistic probabilities. Plot the equation for the fitted values on the axes used in the scatterplots in part (B).
+
+
+    ```{r}
+    ggplot(icu, aes(x=AGE, y=factor(STA))) + geom_point() + 
+        ylab("STA")
+    ```
+
+5. Summarize (describe in words) the results presented in the plot obtained from parts (B) and (D). Discuss your response in the [homework forum](https://class.coursera.org/logisticregression-001/forum/list?forum_id=10012).
